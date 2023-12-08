@@ -1,4 +1,4 @@
-use std::{fs::File, io::{Read, self, BufRead}, ops::Add};
+use std::{fs::File, io::{Read, self, BufRead}};
 
 type Matrix = Vec<Vec<EnginePart>>;
 
@@ -9,7 +9,7 @@ fn get_path(test: bool) -> String {
     } else {
         path += "day";
     }
-    println!("Executing: {}", path);
+    //println!("Executing: {}", path);
     return path;
 }
 
@@ -18,7 +18,7 @@ fn read_input_as_matrix(day: &str, test: bool) -> Matrix {
 }
 
 fn read_file_as_matrix(file_path: &String) -> io::Result<Matrix> {
-    println!("{}", file_path);
+    //println!("{}", file_path);
     let file = File::open(file_path)?;
     let reader = io::BufReader::new(file);
 
@@ -50,13 +50,13 @@ fn read_string_from_file(filename: &String) -> String {
                     return buffer;
                 }
                 Err(_) => {
-                    println!("readToString Failled");
+                    //println!("readToString Failled");
                     return String::new();
                 }
             }
         }
         Err(_) => {
-            println!("Cannot find file @{:?}", filename);
+            //println!("Cannot find file @{:?}", filename);
             return String::new();
         }
     }
@@ -116,7 +116,7 @@ fn _get_first_digits(line: &mut Vec<EnginePart>, min: usize, max: usize, reverse
     let mut found = false;
     let mut str_rep = String::new();
     for i in indexes {
-        print!(" -- {} -- {} --", i, line[i].ch);
+        //print!(" -- {} -- {} --", i, line[i].ch);
         if line[i].is_digit(10) {
             if reversed {
                 number.insert(0, line[i].get_if_not_seen());
@@ -182,7 +182,7 @@ fn get_color_index(color: &str) -> usize {
 }
 
 fn get_u32_from_str(number: &String, zeros_before: &mut usize) -> u32 {
-    print!("got: {}", number);
+    //print!("got: {}", number);
     for char in number.chars() {
         if char != '0' {
             break;
@@ -199,13 +199,13 @@ fn get_u32_from_str(number: &String, zeros_before: &mut usize) -> u32 {
 
 fn validate_game(game: Vec<&str>, rgb: &[u32;3]) -> u32 {
     for hand in game.get(1).unwrap_or(&"").split(";") {
-        println!("{}", hand);
+        //println!("{}", hand);
         for color in hand.split(",") {
             let mut to_check = color.trim().split(" ");
             let col = to_check.nth(1).unwrap_or_default();
             let num = get_first_digits(&mut color.chars().map(|ch| EnginePart::new(ch)).collect::<Vec<_>>(), false, true, false);
             let col_idx = get_color_index(col);
-            println!("{}{}{}", col_idx, col, num);
+            //println!("{}{}{}", col_idx, col, num);
             if rgb[get_color_index(col)] < num {
                 return 0; 
             }
@@ -218,13 +218,13 @@ fn validate_game(game: Vec<&str>, rgb: &[u32;3]) -> u32 {
 fn min_rgb(game: Vec<&str>) -> [u32;3] {
     let mut rgb: [u32;3] = [0,0,0]; 
     for hand in game.get(1).unwrap_or(&"").split(";") {
-        println!("{}", hand);
+        //println!("{}", hand);
         for color in hand.split(",") {
             let mut to_check = color.trim().split(" ");
             let col = to_check.nth(1).unwrap_or_default();
             let num = get_first_digits(&mut color.chars().map(|ch| EnginePart::new(ch)).collect(), false, true, false);
             let col_idx = get_color_index(col);
-            println!("{}{}{}", col_idx, col, num);
+            //println!("{}{}{}", col_idx, col, num);
             if rgb[col_idx] < num {
                 rgb[col_idx] = num;
             }
@@ -240,9 +240,9 @@ fn day2(test: bool) -> u32{
     let input: String = read_input_as_string("2", test);
     let mut value = 0;
     for line in input.lines() {
-        println!("{}", line);
+        //println!("{}", line);
         let to_add = validate_game(line.split(": ").collect(), &rgb);
-        println!("{}", to_add);
+        //println!("{}", to_add);
         value += to_add;
     }
     return value;
@@ -252,10 +252,10 @@ fn day2_1(test: bool) -> u32 {
     let input: String = read_input_as_string("2.1", test);
     let mut value = 0;
     for line in input.lines() {
-        println!("{}", line);
+        //println!("{}", line);
         let to_add = min_rgb(line.split(": ").collect());
         let sum = to_add.get(0).unwrap_or(&0) * to_add.get(1).unwrap_or(&0) * to_add.get(2).unwrap_or(&0);
-        println!("[{},{},{}] => {}", to_add.get(0).unwrap_or(&0), to_add.get(1).unwrap_or(&0), to_add.get(2).unwrap_or(&0),sum);
+        //println!("[{},{},{}] => {}", to_add.get(0).unwrap_or(&0), to_add.get(1).unwrap_or(&0), to_add.get(2).unwrap_or(&0),sum);
         value += sum;
     }
     return value;
@@ -275,10 +275,10 @@ fn _get_number_in_pos(line: &mut Vec<EnginePart>, x: usize) -> u32 {
     if x >= line.len() || !line[x].is_digit(10) || line[x].seen() {
         return 0;
     }
-    print!(" x: {} ({})", x, line[x].ch);
+    //print!(" x: {} ({})", x, line[x].ch);
     let value: String = get_while_digit(line, x, true) + &get_while_digit(line, x.wrapping_add(1), false); 
    
-    print!(" -> {}", value);
+    //print!(" -> {}", value);
     return value.parse::<u32>().unwrap_or(0);
 }
 
@@ -286,7 +286,7 @@ fn get_number_in_pos(line: &mut Vec<EnginePart>, x: usize) -> u32 {
     if x >= line.len() {
         return 0;
     }
-    print!(" x: {} ({})", x, line[x].ch);
+    //print!(" x: {} ({})", x, line[x].ch);
     if !line[x].is_digit(10) {
         return 0;
     }
@@ -296,39 +296,45 @@ fn get_number_in_pos(line: &mut Vec<EnginePart>, x: usize) -> u32 {
     }
     let mut zeros: usize = 0;
     let to_add = &_get_first_digits(line, x, line.len(), false, true, false, &mut zeros).to_string();
-    print!(" zeros: {} ", zeros);
+    //print!(" zeros: {} ", zeros);
     value += &"0".repeat(zeros);
     value += to_add; 
-    print!(" = {}", value);
+    //print!(" = {}", value);
     return value.parse::<u32>().unwrap_or(0);
+}
+
+fn get_num_in_pos(line: &mut Vec<EnginePart>, x: usize) -> Option<i32> {
+    let value = &line[x]; 
+    if value.seen() || !value.is_digit(10) {
+        return None;
+    }
+    return Some(_get_number_in_pos(line, x) as i32);
 }
 
 fn mult_surrounding_nums_line(x: usize, y: usize, matrix: &mut Matrix) -> i32 {
     let mut value: i32 = 1;
     let mut flag = false;
-    print!("y: {}",y);
-    let mut temp: i32 = 0;
+    //print!("y: {}",y);
     if x != 0 {
-        temp = _get_number_in_pos(&mut matrix[y], x.wrapping_sub(1)) as i32;
-        if temp != -1 && temp == 0 && matrix[y][x].ch == '0' {
+       if let Some(aux) = get_num_in_pos(&mut matrix[y], x.wrapping_sub(1)) {
             flag = true;
-            dbg!(value);
-            dbg!(temp);
-            value *= temp;
-            dbg!(value);
+            value *= aux;
+       } 
+    }
+
+    if flag && matrix[y][x].is_digit(10) {
+        if let Some(aux) = get_num_in_pos(&mut matrix[y], x) {
+            return aux;
         }
     }
-    if temp == 0 && matrix[y][x].is_digit(10) {
-        return _get_number_in_pos(&mut matrix[y], x) as i32;
+    
+    if x.wrapping_add(1) < matrix[y].len() {
+       if let Some(aux) = get_num_in_pos(&mut matrix[y], x.wrapping_add(1)) {
+            flag = true;
+            value *= aux;
+       } 
     }
-    temp = _get_number_in_pos(&mut matrix[y], x.wrapping_add(1)) as i32;
-    dbg!(value);
-    dbg!(temp);
-    if temp != -1 && temp == 0 && matrix[y][x].ch == '0' {
-        value *= temp;
-        flag = true;
-    }
-    dbg!(value);
+
     if flag == false {
         return -1;
     }
@@ -337,7 +343,7 @@ fn mult_surrounding_nums_line(x: usize, y: usize, matrix: &mut Matrix) -> i32 {
 
 fn sum_surrounding_nums_line(x: usize, y: usize, matrix: &mut Matrix) -> u32 {
     let mut value: u32 = 0;
-    print!("y: {}",y);
+    //print!("y: {}",y);
     if x != 0 {
         value += _get_number_in_pos(&mut matrix[y], x.wrapping_sub(1));
     }
@@ -350,49 +356,43 @@ fn sum_surrounding_nums_line(x: usize, y: usize, matrix: &mut Matrix) -> u32 {
 
 fn mult_of_surrounding_nums(x: usize, y: usize, matrix: &mut Matrix) -> i32 {
     let mut value: i32 = 1;
-    println!("Gear ({},{})", x,y);
+    //println!("Gear ({},{})", x,y);
     let mut temp: i32;
     if y != 0 {
         temp = mult_surrounding_nums_line(x, y.wrapping_sub(1), matrix);
         if temp != -1{
             value *= temp;
         } 
-        print!(" temp = {}",temp);
-        print!(" value = {}",value);
-        println!();
+        //println!();
     }
     temp = mult_surrounding_nums_line(x, y, matrix);
     if temp != -1 {
         value *= temp;
     }
-    print!(" temp = {}",temp);
-    print!(" value = {}",value);
-    println!();
+    //println!();
     if y < matrix.len().wrapping_sub(1) {
         temp = mult_surrounding_nums_line(x, y.wrapping_add(1), matrix);
         if temp != -1 {
             value *= temp;
         }
-        print!(" temp = {}",temp);
-        print!(" value = {}",value);
-        println!();
+        //println!();
     }
-    println!("Gear value = {}", value);
+    //println!("Gear value = {}", value);
     return value;
 }
 
 fn sum_of_surrounding_nums(x: usize, y: usize, matrix: &mut Matrix) -> u32 {
     let mut value: u32 = 0;
-    println!("symbol: ({},{})", x, y);
+    //println!("symbol: ({},{})", x, y);
     if y != 0 {
         value += sum_surrounding_nums_line(x, y.wrapping_sub(1), matrix);
-        println!();
+        //println!();
     }
     value += sum_surrounding_nums_line(x, y, matrix);
-    println!();
+    //println!();
     if y < matrix.len().wrapping_sub(1) {
         value += sum_surrounding_nums_line(x, y.wrapping_add(1), matrix);
-        println!();
+        //println!();
     }
     return value;
 }
@@ -420,12 +420,12 @@ struct EnginePart {
 
 impl EnginePart {
     fn get_if_not_seen(&self) -> char {
-        // print!("original: {}", self.ch);
+        // //print!("original: {}", self.ch);
         if *self.calculated {
-            //  print!(" returned: {}", 0);
+            //  //print!(" returned: {}", 0);
             return '0';
         }
-        // print!(" returned: {}", self.ch);
+        // //print!(" returned: {}", self.ch);
         return self.ch;
     }
 
@@ -472,7 +472,7 @@ impl NewTrait for EnginePart  {
 impl IsDigit for EnginePart {
     fn to_digit(&mut self, base: u32) -> Option<u32> {
         self.see();
-        println!("{}", self.ch);
+        //println!("{}", self.ch);
         if !self.calculated && self.is_digit(base) {
             Some(0)
         } else {
@@ -536,7 +536,7 @@ fn day3_1(test: bool) -> i32 {
     for y in 0..matrix.len() {
         for x in 0..matrix[y].len() {
             if matrix[y][x].is_gear() && sum_surrounding_nums(x,y, &matrix){
-                println!();
+                //println!();
                 value += mult_of_surrounding_nums(x,y, &mut matrix);
             }
         }
@@ -545,9 +545,9 @@ fn day3_1(test: bool) -> i32 {
 }
 
 fn main() {
-    // println!("{}", day1(false));
-    // println!("{}", day2(false));
-    // println!("{}", day2_1(false));
-    // println!("{}", day3(false));
-    println!("{}", day3_1(true));
+    // //println!("{}", day1(false));
+    // //println!("{}", day2(false));
+    // //println!("{}", day2_1(false));
+    // //println!("{}", day3(false));
+    println!("{}", day3_1(false));
 }
