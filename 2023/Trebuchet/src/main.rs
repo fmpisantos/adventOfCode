@@ -311,19 +311,24 @@ fn mult_surrounding_nums_line(x: usize, y: usize, matrix: &mut Matrix) -> i32 {
     if x != 0 {
         temp = _get_number_in_pos(&mut matrix[y], x.wrapping_sub(1)) as i32;
         if temp != -1 && temp == 0 && matrix[y][x].ch == '0' {
-            println!("temp = {}", temp);
             flag = true;
+            dbg!(value);
+            dbg!(temp);
             value *= temp;
+            dbg!(value);
         }
     }
     if temp == 0 && matrix[y][x].is_digit(10) {
         return _get_number_in_pos(&mut matrix[y], x) as i32;
     }
     temp = _get_number_in_pos(&mut matrix[y], x.wrapping_add(1)) as i32;
+    dbg!(value);
+    dbg!(temp);
     if temp != -1 && temp == 0 && matrix[y][x].ch == '0' {
-        println!("temp = {}", temp);
         value *= temp;
+        flag = true;
     }
+    dbg!(value);
     if flag == false {
         return -1;
     }
