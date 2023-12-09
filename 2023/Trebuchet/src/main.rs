@@ -58,7 +58,7 @@ impl Numbers {
         }
     }
 
-    pub fn get_winnigs(&mut self) -> usize {
+    pub fn get_winnigs(&self) -> usize {
         let mut result: usize = 0;
         self.print();
         print!("Winning numbers: (");
@@ -90,7 +90,7 @@ impl Numbers {
         }
         print!(") -> {} winners = {}", result, pow(result.saturating_sub(1), 2));
         println!();
-        pow(result.saturating_sub(1), 2)
+        result
     }
 }
 
@@ -694,17 +694,31 @@ fn day4(test: bool) -> usize{
     let cards = read_input_as_cards("4", test);
     cards.print();
 
-    for mut card in cards {
-        value += card.get_winnigs();
+    for card in cards {
+        value += pow(card.get_winnigs(), 2);
     }
     return value;
 }
 
+fn day4_1(test: bool) -> usize{
+    let cards = read_input_as_cards("4.1", test);
+    cards.print();
+    let mut value = vec!(1; cards.len().clone());
+    for (i,card) in cards.iter().enumerate() {
+        let count: usize = card.get_winnigs();
+        for n in 1..=count {
+            value[i + n] += value[i];
+        }
+    }
+    return value.into_iter().reduce(|acc, c| acc + c).unwrap_or(0);
+}
+
 fn main() {
-    // //println!("{}", day1(false));
-    // //println!("{}", day2(false));
-    // //println!("{}", day2_1(false));
-    // //println!("{}", day3(false));
+    // println!("{}", day1(false));
+    // println!("{}", day2(false));
+    // println!("{}", day2_1(false));
+    // println!("{}", day3(false));
     // println!("{}", day3_1(false));
-    println!("{}", day4(false));
+    // println!("{}", day4(false));
+    println!("{}", day4_1(false));
 }
