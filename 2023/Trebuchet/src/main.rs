@@ -1,6 +1,112 @@
-use std::{fs::File, io::{Read, self, BufRead}};
+use std::{fs::File, io::{Read, self, BufRead}, collections::HashSet};
 
 type Matrix = Vec<Vec<EnginePart>>;
+type Card = Vec<Numbers>;
+type Vec_Part = Vec<EnginePart>;
+
+trait Import {
+    fn import(char_vec: Vec<char>) -> Self;
+}
+
+impl Print for Card {
+    fn print(&self) {
+        for card in self {
+            card.print();
+        }
+    }
+}
+
+impl Import for Vec_Part {
+    fn import(char_vec: Vec<char>) -> Self {
+        char_vec.iter().map(|&c| EnginePart::new(c)).collect()
+    }
+}
+
+struct Numbers {
+   pub mine: HashSet<usize>,
+   pub winning: HashSet<usize>,
+   pub card_nr: usize
+}
+
+impl Print for Numbers {
+    fn print(&self) {
+        print!("Card {}: ", self.card_nr);
+        for num in &self.mine {
+            print!("{} ", num);
+        }
+        print!(" | ");
+        for num in &self.winning {
+            print!("{} ", num);
+        }
+        println!();
+    }
+}
+
+impl Numbers {
+    pub fn new(mine: HashSet<usize>, winning: HashSet<usize>, card_nr: usize) -> Self {
+        Self {
+            mine,
+            winning,
+            card_nr
+        }
+    }
+
+    pub fn parse_nums(set: &mut HashSet<usize>, nums: &str) {
+        let splited = nums.split_whitespace();
+        for num in splited {
+            set.insert(num.parse().unwrap_or(0));
+        }
+    }
+
+    pub fn get_winnigs(&mut self) -> usize {
+        let mut result: usize = 0;
+        self.print();
+        print!("Winning numbers: (");
+        if self.mine.len() > self.winning.len() {
+            for number in &self.winning {
+                if self.mine.contains(number) {
+                    if number > &0 {
+                        print!(" ,");
+                    }
+                    print!("{}", number);
+                    result = result.wrapping_add(1);
+                }
+            }
+        } else {
+            for number in &self.mine{
+                if self.winning.contains(number) {
+                    if number > &0 {
+                        print!(" ,");
+                    }
+                    print!("{}", number);
+                    result = result.wrapping_add(1);
+                }
+            }
+        }
+        if result == 0 {
+            print!(") -> {} winners = {}", result, result);
+            println!();
+            return 0;
+        }
+        print!(") -> {} winners = {}", result, pow(result.saturating_sub(1), 2));
+        println!();
+        pow(result.saturating_sub(1), 2)
+    }
+}
+
+impl Default for Numbers {
+    fn default() -> Self {
+        return Self::new(HashSet::new(), HashSet::new(), 0);
+    }
+}
+
+fn pow(num: usize, base: usize) -> usize {
+    let mut result = 1;
+    for _ in 0..num {
+        result *= base;
+    }
+    result
+}
 
 fn get_path(test: bool) -> String {
     let mut path = String::from("src/inputs/");
@@ -13,8 +119,47 @@ fn get_path(test: bool) -> String {
     return path;
 }
 
+fn read_input_as_cards(day: &str, test: bool) -> Card {
+    return read_file_as_numbers(&format!("{}{}", get_path(test), day)).unwrap();
+} 
+
 fn read_input_as_matrix(day: &str, test: bool) -> Matrix {
     return read_file_as_matrix(&format!("{}{}", get_path(test), day)).unwrap();    
+}
+
+fn read_file_as_numbers(file_path: &String) -> io::Result<Card> {
+    //println!("{}", file_path);
+    let file = File::open(file_path)?;
+    let reader = io::BufReader::new(file);
+
+    let mut numbers: Card = Vec::new();
+
+    for line in reader.lines() {
+        let line = line?;
+        let split_line = &mut line.split("|");
+        let mut num: Numbers = Numbers::default();
+        if let Some(nums) = &mut split_line.next() {
+            let mine_split = &mut nums.split(":");
+            if let Some(card) = &mine_split.next() {
+                let mut card_as_str: String = String::new();
+                for char in card.chars() {
+                    if char.is_digit(10) {
+                        card_as_str.push(char);
+                    }
+                }
+                num.card_nr = card_as_str.parse().unwrap_or(0);
+            }
+            if let Some(mine) = mine_split.next() {
+                Numbers::parse_nums(&mut num.mine, mine);
+            }
+        }
+        if let Some(winning) = split_line.next() {
+            Numbers::parse_nums(&mut num.winning, winning);
+        }
+        numbers.push(num);
+    }
+
+    Ok(numbers)
 }
 
 fn read_file_as_matrix(file_path: &String) -> io::Result<Matrix> {
@@ -101,7 +246,7 @@ fn get_num_from_string(str_value: &String) -> u8 {
     return 10;
 }
 
-fn get_first_digits(line: &mut Vec<EnginePart>, reversed: bool, multiple: bool, consider_string: bool) -> u32 {
+fn get_first_digits(line: &mut Vec_Part, reversed: bool, multiple: bool, consider_string: bool) -> u32 {
     return _get_first_digits(line, 0, line.len(), reversed, multiple, consider_string, &mut 0);
 }
 
@@ -544,10 +689,22 @@ fn day3_1(test: bool) -> i32 {
      return value;
 }
 
+fn day4(test: bool) -> usize{
+    let mut value = 0;
+    let cards = read_input_as_cards("4", test);
+    cards.print();
+
+    for mut card in cards {
+        value += card.get_winnigs();
+    }
+    return value;
+}
+
 fn main() {
     // //println!("{}", day1(false));
     // //println!("{}", day2(false));
     // //println!("{}", day2_1(false));
     // //println!("{}", day3(false));
-    println!("{}", day3_1(false));
+    // println!("{}", day3_1(false));
+    println!("{}", day4(false));
 }
