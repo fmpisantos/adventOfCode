@@ -1,6 +1,6 @@
 use std::{fs::File, io::{Read, self, BufRead}};
 
-use crate::my_types::{Card, Matrix, Numbers, EnginePart};
+use crate::my_types::{Card, Matrix, Numbers, EnginePart, SeedMap};
 
 fn get_path(test: bool) -> String {
     let mut path = String::from("src/inputs/");
@@ -94,5 +94,39 @@ fn read_string_from_file(filename: &String) -> String {
             return String::new();
         }
     }
+}
+
+pub fn read_input_for_rules_and_seeds(day: &str, test: bool) -> io::Result<SeedMap> {
+    let file = File::open(&format!("{}{}", get_path(test), day))?;
+    let reader = io::BufReader::new(file);
+
+    let mut rule_helper:String = String::new();
+    let mut rules: SeedMap = SeedMap::default();
+    let mut is_new_rule = true;
+    for line in reader.lines() {
+        match line {
+            Ok(line) => {
+                if line.is_empty() {
+                    is_new_rule = true;
+                    continue;
+                }
+                if rules.seeds.is_empty() {
+                    rules.init_seeds(line);
+                    continue;
+                }
+                if is_new_rule {
+                    is_new_rule = false; 
+                    rule_helper = rules.new_map(line);
+                } else {
+                    rules.new_rule(line, &rule_helper);
+                }
+            }
+            Err(err) => {
+                panic!("{}", err);
+            }
+        }
+    }
+
+    Ok(rules)
 }
 

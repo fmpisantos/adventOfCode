@@ -2,9 +2,9 @@ mod read_from_file;
 mod aux_methods;
 mod my_types;
 
-use read_from_file::{read_input_as_string, read_input_as_matrix, read_input_as_cards}; 
+use read_from_file::{read_input_as_string, read_input_as_matrix, read_input_as_cards, read_input_for_rules_and_seeds}; 
 use aux_methods::{get_first_digit, validate_game, min_rgb, sum_of_surrounding_nums, sum_surrounding_nums, mult_of_surrounding_nums, pow};
-use my_types::{EnginePart, Print, NewTrait};
+use my_types::{EnginePart, Print, NewTrait, SeedMap, Solve};
 
 fn day1(test: bool) -> u32{
     let input: String = read_input_as_string("1.1", test);
@@ -99,8 +99,11 @@ fn day4_1(test: bool) -> usize{
 }
 
 fn day5(test: bool) -> usize {
-    let value: usize = 0;
-    value
+    if let Ok(seed_map) = read_input_for_rules_and_seeds("5", test) {
+        // seed_map.print();
+        return seed_map.solve();
+    }
+    0
 }
 
 fn main() {
