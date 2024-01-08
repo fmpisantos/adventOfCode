@@ -32,13 +32,13 @@ impl MapConvertion {
         self.rule.append(&mut vec!([dest, origin, size]));
     } 
 
-    fn get_dest(&self, origin: usize) -> usize {
+    fn get_dest(&self, origin: &usize) -> &usize {
         for r in &self.rule {
-           if origin >= r[1] && origin < r[1].wrapping_add(r[2]) {
+           if *origin >= r[1] && *origin < r[1].wrapping_add(r[2]) {
                if r[1] > r[0] {
-                    return origin.wrapping_sub(r[1].wrapping_sub(r[0]));
+                    return &origin.wrapping_sub(r[1].wrapping_sub(r[0]));
                } else {
-                    return origin.wrapping_add(r[0].wrapping_sub(r[1]));
+                    return &origin.wrapping_add(r[0].wrapping_sub(r[1]));
                }
            }
         }
@@ -53,20 +53,23 @@ impl Print for MapConvertion {
 }
 
 pub struct SeedMap {
-    pub seeds: Vec<usize>,
+    pub _seeds: Vec<usize>,
+    pub seeds: HashSet<usize>,
     pub map: HashMap<String, MapConvertion>,
 }
 
 impl SeedMap {
-    pub fn new(seeds: Vec<usize>, map: HashMap<String, MapConvertion>) -> Self {
+    pub fn new(_seeds: Vec<usize>, seeds: HashSet<usize>, map: HashMap<String, MapConvertion>) -> Self {
         Self {
+            _seeds,
             seeds,
             map
         }
     }
 
     pub fn init_seeds(&mut self, line: String) {
-        self.seeds = line.split(": ").nth(1).unwrap().split_whitespace().map(|s| s.parse().unwrap()).collect::<Vec<usize>>();
+        println!("{}", line);
+        self._seeds = line.split(": ").nth(1).unwrap().split_whitespace().map(|s| s.parse().unwrap()).collect::<Vec<usize>>();
     }
 
     pub fn new_map(&mut self, line: String) -> String {
@@ -83,41 +86,67 @@ impl SeedMap {
             item.append_rule(rules.next().unwrap_or("0").parse().unwrap_or(0), rules.next().unwrap_or("0").parse().unwrap_or(0), rules.next().unwrap_or("0").parse().unwrap_or(0));
         } 
     }
+
+    pub fn unwrap_seed_pairs(&mut self) {
+        let mut it_seeds = self._seeds.iter();
+        loop {
+            match it_seeds.next() {
+                Some(seed) => {
+                    let range = it_seeds.next().unwrap_or(&0);
+                    for item in *seed..range.wrapping_add(*seed) {
+                        self.seeds.insert(item);
+                    }
+                }
+                None => {break;}
+            }
+        }
+    }
 }
 
 impl Default for SeedMap {
     fn default() -> Self {
-        SeedMap::new(Vec::new(), HashMap::new())
+        SeedMap::new(Vec::new(), HashSet::new(), HashMap::new())
     }
 }
 
 pub trait Solve {
+    fn convert(map: &MapConvertion, min_location: &mut usize, dest:&mut String, idx: &mut usize);
     fn solve(&self) -> usize;
 }
 
 impl Solve for SeedMap {
+
+    fn convert(mut map: &MapConvertion, mut min_location: &mut usize, mut dest: &mut String, mut idx: &mut usize) {
+        let mut found_location: bool = false;
+        while !found_location {
+            idx = &mut map.get_dest(idx);
+            dest = &mut map.to;
+            // print!(", {} {}", dest, idx);
+            found_location = dest == LOCATION;
+            if found_location {
+                // print!( "Location = {} ({})", idx, min_location );
+                min_location = min_location.min(idx);
+                break;
+            }
+        }
+    }
+
     fn solve(&self) -> usize{
         let mut min_location = usize::max_value();
+        let mut _i = 0;
         for seed in &self.seeds {
-            println!();
+            //println!();
             let mut map = self.map.get(SEED).unwrap(); 
             let mut dest: &String;
             let mut idx = seed.clone();
             let mut found_location = false;
-            print!("{} {}", map.to, idx);
-            while !found_location {
-                idx = map.get_dest(idx);
-                dest = &map.to;
-                print!(", {} {}", dest, idx);
-                found_location = dest == LOCATION;
-                if found_location {
-                    min_location = min_location.min(idx);
-                    break;
-                }
-                map = self.map.get(dest).unwrap();
-            }
+            _i += 1;
+            println!("{}/{}", _i, self.seeds.len());
+            // print!("{} {}", map.to, idx);
+            Self::convert(map, &mut min_location, dest, &mut idx);
+            map = self.map.get(dest).unwrap();
         }
-        println!();
+        // println!();
         return min_location;
     }
 }

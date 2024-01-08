@@ -110,7 +110,7 @@ pub fn read_input_for_rules_and_seeds(day: &str, test: bool) -> io::Result<SeedM
                     is_new_rule = true;
                     continue;
                 }
-                if rules.seeds.is_empty() {
+                if rules._seeds.is_empty() {
                     rules.init_seeds(line);
                     continue;
                 }

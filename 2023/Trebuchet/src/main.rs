@@ -106,6 +106,15 @@ fn day5(test: bool) -> usize {
     0
 }
 
+fn day5_1(test: bool) -> usize {
+    if let Ok(mut seed_map) = read_input_for_rules_and_seeds("5.1", test) {       
+        // seed_map.unwrap_seed_pairs();
+        // seed_map.print();
+        return seed_map.solve();
+    }
+    0
+}
+
 fn main() {
     // println!("{}", day1(false));
     // println!("{}", day2(false));
@@ -114,5 +123,6 @@ fn main() {
     // println!("{}", day3_1(false));
     // println!("{}", day4(false));
     // println!("{}", day4_1(false));
-    println!("{}", day5(false));
+    // println!("{}", day5(false));
+    println!("{}", day5_1(false));
 }
